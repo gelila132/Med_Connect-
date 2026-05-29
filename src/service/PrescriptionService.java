@@ -103,4 +103,43 @@ public class PrescriptionService {
                     // This would call inventory update logic
                 }
             }
-            return prescriptionDAO.updatePrescription
+            return prescriptionDAO.updatePrescriptionStatus(prescription.getPrescriptionId(), "Filled", pharmacyId);
+        } else {
+            // Partial fill
+            return prescriptionDAO.updatePrescriptionStatus(prescription.getPrescriptionId(), "Partially Filled", pharmacyId);
+        }
+    }
+    
+    // Cancel prescription
+    public boolean cancelPrescription(String prescriptionNo) throws SQLException {
+        Prescription prescription = prescriptionDAO.getPrescriptionByNumber(prescriptionNo);
+        if (prescription == null) {
+            throw new IllegalArgumentException("Prescription not found");
+        }
+        return prescriptionDAO.updatePrescriptionStatus(prescription.getPrescriptionId(), "Cancelled", null);
+    }
+    
+    // Get prescriptions by patient name
+    public List<Prescription> getPrescriptionsByPatient(String patientName) throws SQLException {
+        List<Prescription> all = prescriptionDAO.getAllPrescriptions();
+        List<Prescription> result = new java.util.ArrayList<>();
+        for (Prescription p : all) {
+            if (p.getPatientName().toLowerCase().contains(patientName.toLowerCase())) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+    
+    // Get prescriptions by status
+    public List<Prescription> getPrescriptionsByStatus(String status) throws SQLException {
+        List<Prescription> all = prescriptionDAO.getAllPrescriptions();
+        List<Prescription> result = new java.util.ArrayList<>();
+        for (Prescription p : all) {
+            if (p.getStatus().equalsIgnoreCase(status)) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+}
